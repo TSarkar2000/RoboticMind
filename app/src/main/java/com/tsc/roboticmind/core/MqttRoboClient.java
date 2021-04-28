@@ -37,10 +37,12 @@ public class MqttRoboClient {
             MqttConnectOptions options = new MqttConnectOptions();
             options.setAutomaticReconnect(true);
             options.setMaxReconnectDelay(60000);
-            listener.onMessageEvent("Waiting for response...");
+            if (listener != null)
+                listener.onMessageEvent("Waiting for response...");
             androidClient.connect(options);
         } catch (MqttException e) {
-            listener.onMessageEvent(e.getMessage());
+            if (listener != null)
+                listener.onMessageEvent(e.getMessage());
         }
     }
 
@@ -52,7 +54,8 @@ public class MqttRoboClient {
         try {
             androidClient.subscribe(topic, defQoS, null, subscribeAction);
         } catch (MqttException e) {
-            listener.onMessageEvent(e.getMessage());
+            if (listener != null)
+                listener.onMessageEvent(e.getMessage());
         }
     }
 
@@ -60,12 +63,14 @@ public class MqttRoboClient {
         @Override
         public void onSuccess(IMqttToken asyncActionToken) {
             String[] topics = asyncActionToken.getTopics();
-            listener.onMessageEvent("Subscribed to " + topics[topics.length - 1]);
+            if (listener != null)
+                listener.onMessageEvent("Subscribed to " + topics[topics.length - 1]);
         }
 
         @Override
         public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-            listener.onMessageEvent("Subscription failed!");
+            if (listener != null)
+                listener.onMessageEvent("Subscription failed!");
         }
     };
 
@@ -78,28 +83,32 @@ public class MqttRoboClient {
             lastTopic = topic;
             androidClient.publish(topic, message, null, publishAction);
         } catch (MqttException e) {
-            listener.onMessageEvent(e.getMessage());
+            if (listener != null)
+                listener.onMessageEvent(e.getMessage());
         }
     }
 
     private final IMqttActionListener publishAction = new IMqttActionListener() {
         @Override
         public void onSuccess(IMqttToken asyncActionToken) {
-            listener.onMessageEvent("Published:\""+lastTopic+"\"");
+            if (listener != null)
+                listener.onMessageEvent("Published:\"" + lastTopic + "\"");
         }
 
         @Override
         public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-            listener.onMessageEvent("Failed to publish");
+            if (listener != null)
+                listener.onMessageEvent("Failed to publish");
         }
     };
 
-    public void disconnectAndShutdown() {
+    public void disconnect() {
         try {
             androidClient.disconnect();
             androidClient.close();
         } catch (MqttException e) {
-            listener.onMessageEvent(e.getMessage());
+            if (listener != null)
+                listener.onMessageEvent(e.getMessage());
         }
     }
 

@@ -21,6 +21,9 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.tsc.roboticmind.core.RoboClient;
+import com.tsc.roboticmind.core.Task;
+import com.tsc.roboticmind.utils.DataHolder;
 import com.tsc.roboticmind.utils.Prefs;
 
 import java.io.IOException;
@@ -70,7 +73,8 @@ public class ParentActivity extends AppCompatActivity {
                                     })
                                     .setNegativeButton("Quit", (dialog, which) -> finish());
                             builder.show();
-                        } else new Worker().execute(preferences.getString(Prefs.KEY_HOST, Prefs.DEF_HOST));
+                        } else
+                            new Worker().execute(preferences.getString(Prefs.KEY_HOST, Prefs.DEF_HOST));
                     }
 
                     @Override
@@ -110,7 +114,10 @@ public class ParentActivity extends AppCompatActivity {
                         .show();
             } else{
                 Toast.makeText(ParentActivity.this, str, Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(ParentActivity.this, MainActivity.class));
+                Task t = new Task(new RoboClient(1, getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE).getString(Prefs.KEY_BROKER, Prefs.DEF_BROKER), ParentActivity.this));
+                t.begin();
+                DataHolder.getInstance().setTask(t);
+                startActivity(new Intent(ParentActivity.this, AutoActivity.class));
                 finish();
             }
         }

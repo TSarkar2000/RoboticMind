@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/autoMode" android:title="Switch to auto" />
-<item android:id="@+id/settings" android:title="Settings" />
-    <item android:id="@+id/clearLogs" android:title="Clear logs" />
+    <item
+        android:id="@+id/autoMode"
+        android:title="Switch to auto" />
+    <item
+        android:id="@+id/settings"
+        android:title="Settings" />
+    <item
+        android:id="@+id/clearLogs"
+        android:title="Clear logs" />
 </menu>

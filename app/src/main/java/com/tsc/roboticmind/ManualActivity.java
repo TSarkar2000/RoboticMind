@@ -23,13 +23,14 @@ import com.tsc.roboticmind.core.MqttRoboClient;
 import com.tsc.roboticmind.core.RoboClient;
 import com.tsc.roboticmind.core.Task;
 import com.tsc.roboticmind.utils.Commands;
+import com.tsc.roboticmind.utils.DataHolder;
 import com.tsc.roboticmind.utils.Prefs;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class MainActivity extends AppCompatActivity implements View.OnTouchListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class ManualActivity extends AppCompatActivity implements View.OnTouchListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private Button upBtn;
     private Button rightBtn;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
         slider = findViewById(R.id.slider);
 
-        mainDisplay = findViewById(R.id.mainDisplay);
+        mainDisplay = findViewById(R.id.manualDisplay);
 
         scrollView = findViewById(R.id.scrollView);
     }
@@ -63,12 +64,12 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_manual);
 
         SharedPreferences preferences = getApplicationContext().getSharedPreferences("settings", MODE_PRIVATE);
         preferences.registerOnSharedPreferenceChangeListener(this);
 
-        task = new Task(new RoboClient(1, preferences.getString(Prefs.KEY_BROKER, Prefs.DEF_BROKER), this));
+        task = DataHolder.getInstance().getTask();
         task.setMqttEventListener(eventListener);
 
         initWidgets();
@@ -81,8 +82,6 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         leftBtn.setOnTouchListener(this);
 
         slider.addOnSliderTouchListener(onSliderTouchListener);
-
-        task.begin();
     }
 
     private final Slider.OnSliderTouchListener onSliderTouchListener = new Slider.OnSliderTouchListener() {
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
 
         @Override
         public void messageArrived(String topic, MqttMessage message) {
-            onMessageEvent("Arived "+(topic)+": "+ message);
+            onMessageEvent("Arrived "+(topic)+": "+ message);
         }
 
         @Override
@@ -144,8 +143,8 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.autoMode:
-                //startActivity(new Intent(this, AutoActivity.class));
-                //finish();
+                startActivity(new Intent(this, AutoActivity.class));
+                finish();
                 break;
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -163,16 +162,13 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     public void onBackPressed() {
         new AlertDialog.Builder(this)
                 .setMessage("Do you really want to exit ?")
-                .setPositiveButton("Yes", (dialog, which) -> finish())
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    task.stop();
+                    finish();
+                })
                 .setNegativeButton("Cancel", null)
                 .create()
                 .show();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        task.stop();
     }
 
     private Handler handler;

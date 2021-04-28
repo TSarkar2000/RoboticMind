@@ -37,6 +37,6 @@ public class Task {
     }
 
     public void stop() {
-       mqttRoboClient.disconnectAndShutdown();
+       mqttRoboClient.disconnect();
     }
 }
